@@ -1,4 +1,5 @@
 import {GridGenerator, Hexagon, HexGrid, Layout, Text} from "react-hexgrid";
+import {Colors} from "../styles/Colors";
 
 /**
  * size: 4, 4 => 100, 86
@@ -61,13 +62,13 @@ function calculateFillColor(q: number, r: number, s: number): string {
     || isPerimeterOf(outer, q, r, s)
     || (isOnDiagonal(q, r, s) && !isInside(inner, q, r, s) && !isPerimeterOf(7, q, r, s) && !isPerimeterOf(14, q, r, s))
   ) {
-    return "rgba(0 0 0 / .4)"
+    return Colors.ROCK;
   } else if(isInside(inner, q, r, s)) {
-    return "rgba(188 72 122 / .4)"
+    return Colors.SAND;
   } else if(isInside(middle, q, r, s)) {
-    return "rgba(188 122 72 / .4)";
+    return Colors.LIGHT_ORANGE;
   } else {
-    return "rgba(72 180 122 / .4)";
+    return Colors.LIGHT_GREEN;
   }
 }
 
