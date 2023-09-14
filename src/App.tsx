@@ -1,11 +1,11 @@
 import React from 'react';
 import './App.css';
-import CustomGrid from "./components/CustomGrid";
+import Arena from "./components/Arena";
 
 function App() {
   return (
     <div className="App">
-      <CustomGrid radius={5} size={5} />
+      <Arena radius={4} />
     </div>
   );
 }
