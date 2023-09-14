@@ -1,57 +1,36 @@
 import React, {ReactElement, useEffect, useState} from "react";
 import {GridGenerator, Hex, Hexagon, HexGrid, HexUtils, Layout} from "react-hexgrid";
+
 import {Colors} from "../styles/Colors";
-import {HexCoordinates} from "react-hexgrid/lib/models/Hex";
+import {ArenaConfig} from "../config/ArenaConfig";
+import {Figure} from "../config/Figure";
 
-interface Player {
-  name: string;
-  color: string;
-  position: HexCoordinates;
-}
-
-export default function Arena(props: {radius: number}): ReactElement {
-  const dimension = "100vh"
-  let sizeX = 5;
-  let sizeY = 5;
-  let spacing = 1.1;
-  let flat = true;
-
+export default function Arena(props: {config: ArenaConfig}): ReactElement {
   const [shape, setShape] = useState<Hex[]>([]);
-  const [players, setPlayers] = useState<Player[]>([]);
+  const [figures, setFigures] = useState<Figure[]>([]);
 
   useEffect(() => {
-    const shape = GridGenerator.spiral({q: 0, r: 0, s: 0}, props.radius);
+    const shape = GridGenerator.spiral({q: 0, r: 0, s: 0}, props.config.radius);
     setShape(shape);
-  }, [props.radius]);
+  }, [props.config.radius]);
 
   useEffect(() => {
-    const playerBlue: Player = {
-      name: "Blue",
-      color: Colors.BLUE,
-      position: {q: 3, s: -1, r: -2}
-    };
-    const playerRed: Player = {
-      name: "Red",
-      color: Colors.RED,
-      position: {q: -3, s: 1, r: 2}
-    }
-
-    setPlayers([playerBlue, playerRed]);
-  }, []);
+    setFigures(props.config.figures);
+  }, [props.config.figures]);
 
   return (
     <>
       <HexGrid
-        width={dimension}
-        height={dimension}
+        width={props.config.dimension}
+        height={props.config.dimension}
       >
         <Layout
-          size={{x: sizeX, y: sizeY}}
-          spacing={spacing}
-          flat={flat}
+          size={{x: props.config.sizeX, y: props.config.sizeY}}
+          spacing={props.config.spacing}
+          flat={props.config.flat}
         >
           {shape.map((hexa, index) => {
-            const character = findMatchingPlayer(players, hexa);
+            const character = findMatchingPlayer(figures, hexa);
 
             return (
               <Hexagon
@@ -83,7 +62,7 @@ export default function Arena(props: {radius: number}): ReactElement {
                 }}
                 /* Decide here if you want to allow drop to this node */
                 onDragOver={(event, source) => {
-                  const character = findMatchingPlayer(players, hexa);
+                  const character = findMatchingPlayer(figures, hexa);
                   if (!character) {
                     // Call preventDefault if you want to allow drop
                     event.preventDefault();
@@ -96,10 +75,10 @@ export default function Arena(props: {radius: number}): ReactElement {
                   console.log("Change", {from: targetProps.hex, to: source.state.hex})
                   const activeCharacter = targetProps.data;
                   activeCharacter.position = source.state.hex;
-                  const newState: Player[] = [];
+                  const newState: Figure[] = [];
                   newState.push(activeCharacter);
-                  players.filter(player => player.name !== activeCharacter.name).forEach(player => newState.push(player));
-                  setPlayers(newState);
+                  figures.filter(player => player.name !== activeCharacter.name).forEach(player => newState.push(player));
+                  setFigures(newState);
                 }}
               >
 
@@ -112,7 +91,7 @@ export default function Arena(props: {radius: number}): ReactElement {
   );
 }
 
-function findMatchingPlayer(players: Player[], toMatch: Hex): Player | undefined {
+function findMatchingPlayer(players: Figure[], toMatch: Hex): Figure | undefined {
   let match = players.find(player => HexUtils.equals(player.position, toMatch));
   return match;
 }
