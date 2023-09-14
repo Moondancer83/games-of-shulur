@@ -8,6 +8,7 @@ import {Figure} from "../config/Figure";
 export default function Arena(props: {config: ArenaConfig}): ReactElement {
   const [shape, setShape] = useState<Hex[]>([]);
   const [figures, setFigures] = useState<Figure[]>([]);
+  const [neighbors, setNeighbors] = useState<Hex[]>([]);
 
   useEffect(() => {
     const shape = GridGenerator.spiral({q: 0, r: 0, s: 0}, props.config.radius);
@@ -31,6 +32,8 @@ export default function Arena(props: {config: ArenaConfig}): ReactElement {
         >
           {shape.map((hexa, index) => {
             const character = findMatchingPlayer(figures, hexa);
+            const isNeighbor = neighbors.some(item => HexUtils.equals(item, hexa));
+            console.log(hexa, neighbors, isNeighbor)
 
             return (
               <Hexagon
@@ -40,7 +43,7 @@ export default function Arena(props: {config: ArenaConfig}): ReactElement {
                 s={hexa.s}
                 fill={undefined}
                 className={undefined}
-                cellStyle={{fill: character ? character.color : Colors.SAND}}
+                cellStyle={{fill: character ? character.color : isNeighbor ? Colors.LIGHT_GREEN : Colors.SAND}}
                 data={{...character}}
                 onMouseEnter={(event, source) => {}}
                 onMouseOver={(event, source) => {
@@ -50,6 +53,9 @@ export default function Arena(props: {config: ArenaConfig}): ReactElement {
                 onClick={(event, source) => {}}
                 /* Control if element is draggable */
                 onDragStart={(event, source) => {
+                  let neighbors = HexUtils.neighbors(hexa);
+                  setNeighbors(neighbors);
+                  console.log("onDragStart", "setNeighbours")
                   if (!source.data.name) {
                     event.preventDefault();
                   }
@@ -59,11 +65,12 @@ export default function Arena(props: {config: ArenaConfig}): ReactElement {
                   if (!success) {
                     return;
                   }
+                  setNeighbors([]);
                 }}
                 /* Decide here if you want to allow drop to this node */
                 onDragOver={(event, source) => {
                   const character = findMatchingPlayer(figures, hexa);
-                  if (!character) {
+                  if (!character && isNeighbor) {
                     // Call preventDefault if you want to allow drop
                     event.preventDefault();
                   }
